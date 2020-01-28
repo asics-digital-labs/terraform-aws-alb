@@ -30,7 +30,7 @@ variable "extra_ssl_certs" {
 
 variable "https_listeners" {
   description = "A list of maps describing the HTTPS listeners for this ALB. Required key/values: port, certificate_arn. Optional key/values: ssl_policy (defaults to ELBSecurityPolicy-2016-08), target_group_index (defaults to 0)"
-  type        = list(map(string))
+  type        = any
   default     = []
 }
 

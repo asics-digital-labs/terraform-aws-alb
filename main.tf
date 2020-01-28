@@ -129,6 +129,21 @@ resource "aws_lb_listener" "frontend_https" {
   certificate_arn = var.https_listeners[count.index]["certificate_arn"]
   ssl_policy      = lookup(var.https_listeners[count.index], "ssl_policy", var.listener_ssl_policy_default)
 
+  dynamic "default_action" {
+    for_each = length(keys(lookup(var.https_listeners[count.index], "authenticate_cognito", {}))) == 0 ? [] : [lookup(var.https_listeners[count.index], "authenticate_cognito", {})]
+    iterator = authenticate_cognito
+
+    content {
+      type = "authenticate-cognito"
+
+      authenticate_cognito {
+        user_pool_arn       = lookup(authenticate_cognito.value, "user_pool_arn", null)
+        user_pool_client_id = lookup(authenticate_cognito.value, "user_pool_client_id", null)
+        user_pool_domain    = lookup(authenticate_cognito.value, "user_pool_domain", null)
+      }
+    }
+  }
+
   default_action {
     target_group_arn = aws_lb_target_group.main[lookup(var.https_listeners[count.index], "target_group_index", count.index)].id
     type             = "forward"
